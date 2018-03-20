@@ -1,11 +1,12 @@
-import {vec3} from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
 import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
-import {setGL} from './globals';
-import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
+import { setGL } from './globals';
+import ShaderProgram, { Shader } from './rendering/gl/ShaderProgram';
+import Particle from './Particle';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -17,30 +18,57 @@ const controls = {
 let square: Square;
 let time: number = 0.0;
 
+let particles: Particle[] = [];
+let sqrtNumParticles: number = 10;
+
 function loadScene() {
   square = new Square();
   square.create();
 
-  // Set up particles here. Hard-coded example data for now
-  let offsetsArray = [];
-  let colorsArray = [];
-  let n: number = 100.0;
-  for(let i = 0; i < n; i++) {
-    for(let j = 0; j < n; j++) {
-      offsetsArray.push(i);
-      offsetsArray.push(j);
-      offsetsArray.push(0);
-
-      colorsArray.push(i / n);
-      colorsArray.push(j / n);
-      colorsArray.push(1.0);
-      colorsArray.push(1.0); // Alpha channel
+  // fill particles array
+  for (let i = 0; i < sqrtNumParticles; i++) {
+    for (let j = 0; j < sqrtNumParticles; j++) {
+      let x = Math.random() * 10;
+      let y = Math.random() * 10;
+      let z = Math.random() * 10;
+      let p: Particle = new Particle(vec3.fromValues(x, y, z),//vec3.fromValues(10, 0, 0),
+        vec4.fromValues(i / sqrtNumParticles, j / sqrtNumParticles, 1.0, 1.0));
+      particles.push(p);
     }
   }
+
+  updateParticleVBOs();
+}
+
+// update the particles actual data (position, velocity, color, etc)
+function updateParticles(t: number) {
+  for (let i = 0; i < sqrtNumParticles * sqrtNumParticles; i++) {
+    let p: Particle = particles[i];
+    p.update(t);
+  }
+}
+
+// update the particles offsets and colors VBOs
+function updateParticleVBOs() {
+  let offsetsArray = [];
+  let colorsArray = [];
+
+  for (let i = 0; i < sqrtNumParticles * sqrtNumParticles; i++) {
+    let p: Particle = particles[i];
+    offsetsArray.push(p.position[0]);
+    offsetsArray.push(p.position[1]);
+    offsetsArray.push(p.position[2]);
+
+    colorsArray.push(p.color[0]);
+    colorsArray.push(p.color[1]);
+    colorsArray.push(p.color[2]);
+    colorsArray.push(p.color[3]);
+  }
+
   let offsets: Float32Array = new Float32Array(offsetsArray);
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(n * n); // 10x10 grid of "particles"
+  square.setNumInstances(sqrtNumParticles * sqrtNumParticles); // grid of "particles"
 }
 
 function main() {
@@ -56,8 +84,8 @@ function main() {
   const gui = new DAT.GUI();
 
   // get canvas and webgl context
-  const canvas = <HTMLCanvasElement> document.getElementById('canvas');
-  const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
+  const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+  const gl = <WebGL2RenderingContext>canvas.getContext('webgl2');
   if (!gl) {
     alert('WebGL 2 not supported!');
   }
@@ -68,7 +96,7 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(50, 50, 0));
+  const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(5, 5, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
@@ -92,11 +120,17 @@ function main() {
     ]);
     stats.end();
 
+    // update particle positions/colors!
+    updateParticles(time);
+
+    // update the offset VBO each tick!
+    updateParticleVBOs();
+
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);
   }
 
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.setAspectRatio(window.innerWidth / window.innerHeight);
     camera.updateProjectionMatrix();

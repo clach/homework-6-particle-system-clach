@@ -1,6 +1,6 @@
-import {vec3, vec4} from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
 import Drawable from '../rendering/gl/Drawable';
-import {gl} from '../globals';
+import { gl } from '../globals';
 
 class Square extends Drawable {
   indices: Uint32Array;
@@ -15,12 +15,12 @@ class Square extends Drawable {
 
   create() {
 
-  this.indices = new Uint32Array([0, 1, 2,
-                                  0, 2, 3]);
-  this.positions = new Float32Array([-0.5, -0.5, 0, 1,
-                                     0.5, -0.5, 0, 1,
-                                     0.5, 0.5, 0, 1,
-                                     -0.5, 0.5, 0, 1]);
+    this.indices = new Uint32Array([0, 1, 2,
+      0, 2, 3]);
+    this.positions = new Float32Array([-0.5, -0.5, 0, 1,
+      0.5, -0.5, 0, 1,
+      0.5, 0.5, 0, 1,
+    -0.5, 0.5, 0, 1]);
 
     this.generateIdx();
     this.generatePos();
@@ -43,6 +43,7 @@ class Square extends Drawable {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
     gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTranslate);
     gl.bufferData(gl.ARRAY_BUFFER, this.offsets, gl.STATIC_DRAW);
   }
