@@ -1,4 +1,4 @@
-import { vec3, vec4 } from 'gl-matrix';
+import { vec3, vec4, mat4 } from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -7,61 +7,89 @@ import Camera from './Camera';
 import { setGL } from './globals';
 import ShaderProgram, { Shader } from './rendering/gl/ShaderProgram';
 import Particle from './Particle';
+import OBJLoader from './OBJLoader';
+import Mesh from './geometry/Mesh';
 
+
+var numParticles: number = 100;
+var numTargets: number = 0;
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
-  tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
-  'Sqrt Number Particles': 10
+  'Number Particles': numParticles,
+  'Message': 'None'
 };
 
 let square: Square;
+let currentMesh: Mesh = new Mesh();
 let time: number = 0.0;
 
+var mouseDown: boolean = false;
+var lastMouseX: number = null;
+var lastMouseY: number = null;
+var mouseButton: number = 0;
+
 let particles: Particle[] = [];
+let targets: Particle[] = [];
 
-
-
-let target: Particle = new Particle(3, vec3.fromValues(0, 0, 0), vec3.fromValues(0, 0, 0), 
-  vec4.fromValues(1, 1, 0, 1));
+let target: Particle = new Particle(6, vec3.fromValues(0, 0, 0), vec3.fromValues(0, 0, 0),
+  vec3.fromValues(0, 0, 0), vec4.fromValues(0, 0, 0, 1));
 
 function loadScene() {
   square = new Square();
   square.create();
 
+  numTargets = 0;
+  particles = [];
+
+  let posMagnitude: number = 100;
+  let velMagnitude: number = 3;
   // fill particles array
-  for (let i = 0; i < controls["Sqrt Number Particles"]; i++) {
-    for (let j = 0; j < controls["Sqrt Number Particles"]; j++) {
-      let magnitude : number = 20;
-      let x = Math.random() * magnitude - (magnitude / 2);
-      let y = Math.random() * magnitude - (magnitude / 2);
-      let z = Math.random() * magnitude - (magnitude / 2);
+  for (let i = 0; i < numParticles; i++) {
+    let posX = target.position[0] + Math.random() * posMagnitude - (posMagnitude / 2);
+    let posY = target.position[1] + Math.random() * posMagnitude - (posMagnitude / 2);
+    let posZ = target.position[2] + Math.random() * posMagnitude - (posMagnitude / 2);
 
-      let magnitudeV : number = 20;
-      let xV = Math.random() * magnitudeV - (magnitudeV / 2);
-      let yV = Math.random() * magnitudeV - (magnitudeV / 2);
-      let zV = Math.random() * magnitudeV - (magnitudeV / 2);
+    let velX = Math.random() * velMagnitude - (velMagnitude / 2);
+    let velY = Math.random() * velMagnitude - (velMagnitude / 2);
+    let velZ = Math.random() * velMagnitude - (velMagnitude / 2);
 
-      let mass: number = Math.random() * 4 + 2;
-      let p: Particle = new Particle(mass, vec3.fromValues(x, y, z),//vec3.fromValues(10,10, 10), // 
-        vec3.fromValues(xV, yV, zV),
-        vec4.fromValues(i / controls["Sqrt Number Particles"], j / controls["Sqrt Number Particles"], 1.0, 1.0));
-      particles.push(p);
-    }
+    let mass: number = Math.random() * 6 + 2;
+    let p: Particle = new Particle(mass, vec3.fromValues(posX, posY, posZ),//vec3.fromValues(10,10, 10), // 
+      vec3.fromValues(velX, velY, velZ),
+      target.position,
+      vec4.fromValues(0, 0, 0, 1.0));
+    particles.push(p);
+
   }
 
   particles.push(target);
+  numTargets++;
 
   updateParticleVBOs();
 }
 
 // update the particles actual data (position, velocity, color, etc)
-function updateParticles(t: number) {
-  for (let i = 0; i < controls["Sqrt Number Particles"] * controls["Sqrt Number Particles"] + 1; i++) {
+function updateParticles() {
+  for (let i = 0; i < numParticles + numTargets; i++) {
     let p: Particle = particles[i];
-    p.update(t);
+    p.update();
+  }
+}
+
+function attractParticles() {
+  for (let i = 0; i < numParticles + numTargets; i++) {
+    let p: Particle = particles[i];
+    p.attract = true;
+  }
+}
+
+function repelParticles() {
+  for (let i = 0; i < numParticles + numTargets; i++) {
+    let p: Particle = particles[i];
+    p.repel = false;
   }
 }
 
@@ -70,7 +98,7 @@ function updateParticleVBOs() {
   let offsetsArray = [];
   let colorsArray = [];
 
-  for (let i = 0; i < controls["Sqrt Number Particles"] * controls["Sqrt Number Particles"] + 1; i++) {
+  for (let i = 0; i < numParticles + numTargets; i++) {
     let p: Particle = particles[i];
     offsetsArray.push(p.position[0]);
     offsetsArray.push(p.position[1]);
@@ -85,7 +113,8 @@ function updateParticleVBOs() {
   let offsets: Float32Array = new Float32Array(offsetsArray);
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(controls["Sqrt Number Particles"] * controls["Sqrt Number Particles"] + 1); // grid of "particles"
+  square.setNumInstances(numParticles + numTargets);
+
 }
 
 function main() {
@@ -99,13 +128,21 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
-  var particleNumberSlisder = gui.add(controls, 'Sqrt Number Particles', 0, 100);
-  particleNumberSlisder.onChange(function(value : SVGAnimatedNumberList) {
-    particles = [];
+  var particleNumberSlider = gui.add(controls, 'Number Particles', 0, 1000).step(1);
+  particleNumberSlider.onChange(function (value: number) {
+    numParticles = value;
+    // reload scene
     loadScene();
   });
+  var selectedMesh = gui.add(controls, 'Message', [ 'None', 'bulbasaur', 'hmmmm' ] );
+  selectedMesh.onChange(function (value: string) {
+    if (value == 'None') {
 
-
+    } else {
+      let filename: string = "./" + value + ".obj";
+      readTextFile(filename, objLoaderCallback);
+    }
+  });
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement>document.getElementById('canvas');
@@ -120,10 +157,10 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(25, 25, 10), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 0, 60), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
-  renderer.setClearColor(0.2, 0.2, 0.2, 1);
+  renderer.setClearColor(0.4, 0.32, 0.38, 1);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
@@ -133,13 +170,120 @@ function main() {
   ]);
 
   function handleMouseDown(event: any) {
-    /*
     mouseDown = true;
     lastMouseX = event.clientX;
-    lastMouseY = event.clientY;*/
-    console.log("HEYYYYY");
+    lastMouseY = event.clientY;
+    mouseButton = event.which;
+
+    //console.log("x = " + lastMouseX);
+    //console.log("y = " + lastMouseY);
+
+    /*
+    // let's do some ray casting
+    let pointClicked: vec4 = vec4.fromValues(lastMouseX, lastMouseY, 1, 1);
+
+    // convert to NDC
+    pointClicked[0] = (2 * pointClicked[0] / window.innerWidth) - 1;
+    pointClicked[1] = 1 - (2 * pointClicked[1] / window.innerHeight);
+
+    // multiply by far clip plane
+    vec4.scale(pointClicked, pointClicked, camera.far);
+
+    // multiply by invViewProj
+    let invProj: mat4 = mat4.create();
+    mat4.invert(invProj, camera.projectionMatrix);
+    vec4.transformMat4(pointClicked, pointClicked, invProj);
+    let invView: mat4 = mat4.create();
+    mat4.invert(invView, camera.viewMatrix);
+    vec4.transformMat4(pointClicked, pointClicked, invView);
+
+    let cameraEye: vec4 = vec4.fromValues(camera.controls.eye[0], camera.controls.eye[1], camera.controls.eye[2], 1);
+    vec4.subtract(pointClicked, pointClicked, cameraEye);
+    vec4.normalize(pointClicked, pointClicked);
+
+    // point = eye + dir * t
+    var finalP: vec4 = vec4.create();
+    vec4.add(finalP, cameraEye, vec4.scale(pointClicked, pointClicked, 63));
+
+    if (event.which == 1) { // left click, attract particles
+      // update target position
+      target.updatePosition(vec3.fromValues(finalP[0], finalP[1], finalP[2]));
+
+      for (let i = 0; i < numParticles + numTargets; i++) {
+        let p: Particle = particles[i];
+        p.updateTarget(target.position);
+      }
+
+    } else if (event.which == 3) { // right click, repel particles
+
+    }*/
+
+    if (event.which == 1) {
+      for (let i = 0; i < numParticles + numTargets; i++) {
+        let p: Particle = particles[i];
+        p.attract = true;
+        p.repel = false;
+      }
+    } else if (event.which == 3) {
+      for (let i = 0; i < numParticles + numTargets; i++) {
+        let p: Particle = particles[i];
+        p.repel = true;
+        p.attract = false;
+      }
+    }
+
   }
+
+  function handleMouseUp(event: any) {
+    mouseDown = false;
+    for (let i = 0; i < numParticles + numTargets; i++) {
+      let p: Particle = particles[i];
+      p.attract = false;
+      p.repel = false;
+    }
+
+  }
+
+  function handleMouseMove(event: any) {
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
+  }
+
   canvas.onmousedown = handleMouseDown;
+  canvas.onmouseup = handleMouseUp;
+  canvas.onmousemove = handleMouseMove;
+
+  camera.controls.rotationSpeed = 0;
+  camera.controls.translationSpeed = 0;
+  camera.controls.zoomSpeed = 0;
+
+
+
+  function objLoaderCallback(mesh: Mesh, indices: Array<number>, positions: Array<number>, normals: Array<number>): void {
+    mesh.indices = Uint32Array.from(indices);
+    mesh.positions = Float32Array.from(positions);
+    mesh.normals = Float32Array.from(normals);
+    mesh.create();
+  }
+
+  // referenced from https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file
+  function readTextFile(file: string, callback: any): void {
+    let indices: Uint32Array = new Uint32Array(0);
+    let positions: Float32Array = new Float32Array(0);
+    let normals: Float32Array = new Float32Array(0);
+
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+      if (rawFile.readyState === 4) {
+        if (rawFile.status === 200 || rawFile.status == 0) {
+          var allText = rawFile.responseText;
+          OBJLoader(allText, callback, currentMesh);
+        }
+      }
+    }
+    rawFile.send(null);
+  }
 
   // This function will be called every frame
   function tick() {
@@ -153,8 +297,45 @@ function main() {
     ]);
     stats.end();
 
+    if (mouseDown) {
+      // let's do some ray casting
+      let pointClicked: vec4 = vec4.fromValues(lastMouseX, lastMouseY, 1, 1);
+
+      // convert to NDC
+      pointClicked[0] = (2 * pointClicked[0] / window.innerWidth) - 1;
+      pointClicked[1] = 1 - (2 * pointClicked[1] / window.innerHeight);
+
+      // multiply by far clip plane
+      vec4.scale(pointClicked, pointClicked, camera.far);
+
+      // multiply by invViewProj
+      let invProj: mat4 = mat4.create();
+      mat4.invert(invProj, camera.projectionMatrix);
+      vec4.transformMat4(pointClicked, pointClicked, invProj);
+      let invView: mat4 = mat4.create();
+      mat4.invert(invView, camera.viewMatrix);
+      vec4.transformMat4(pointClicked, pointClicked, invView);
+
+      let cameraEye: vec4 = vec4.fromValues(camera.controls.eye[0], camera.controls.eye[1], camera.controls.eye[2], 1);
+      vec4.subtract(pointClicked, pointClicked, cameraEye);
+      vec4.normalize(pointClicked, pointClicked);
+
+      // point = eye + dir * t
+      var finalP: vec4 = vec4.create();
+      vec4.add(finalP, cameraEye, vec4.scale(pointClicked, pointClicked, 63));
+
+      // update target position
+      target.updatePosition(vec3.fromValues(finalP[0], finalP[1], finalP[2]));
+
+      for (let i = 0; i < numParticles + numTargets; i++) {
+        let p: Particle = particles[i];
+        p.updateTarget(target.position);
+      }
+
+    }
+
     // update particle positions/colors!
-    updateParticles(time);
+    updateParticles();
 
     // update the offset VBO each tick!
     updateParticleVBOs();
