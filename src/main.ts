@@ -11,9 +11,8 @@ import OBJLoader from './OBJLoader';
 import Mesh from './geometry/Mesh';
 
 
-/*
 var audio = new Audio('badboy.mp3');
-audio.play();*/
+audio.play();
 
 let catMesh: Mesh = new Mesh();
 let birdMesh: Mesh = new Mesh();
@@ -71,7 +70,10 @@ var numTargets: number = 0;
 const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   'Number Particles': numParticles,
-  'Mesh': 'none'
+  'Mesh': 'none',
+  'Disperse': disperseParticles,
+  'K value': 0.5,
+  'Dampening constant': 0.97
 };
 
 let square: Square;
@@ -132,16 +134,23 @@ function updateParticles() {
 }
 
 function attractParticles() {
-  for (let i = 0; i < numParticles + numTargets; i++) {
+  for (let i = 0; i < numParticles; i++) {
     let p: Particle = particles[i];
     p.attract = true;
   }
 }
 
 function repelParticles() {
-  for (let i = 0; i < numParticles + numTargets; i++) {
+  for (let i = 0; i < numParticles; i++) {
     let p: Particle = particles[i];
     p.repel = false;
+  }
+}
+
+function disperseParticles() {
+  for (let i = 0; i < numParticles; i++) {
+    let p: Particle = particles[i];
+    p.disperse();
   }
 }
 
@@ -172,7 +181,7 @@ function updateParticleVBOs() {
 function toMesh() {
 
   if (currentMesh == null) {
-    for (var i = 0; i < particles.length; i++) {
+    for (var i = 0; i < numParticles; i++) {
       let p: Particle = particles[i];
       p.attract = false;
       p.toMesh = false;
@@ -213,6 +222,25 @@ function main() {
     // reload scene
     loadScene();
   });
+
+  gui.add(controls, 'Disperse');
+
+  var k = gui.add(controls, 'K value', 0, 5).step(0.1);
+  k.onChange(function (value: number) {
+    for (var i = 0; i < numParticles; i++) {
+      let p: Particle = particles[i];
+      p.updateK(value);
+    }
+  });
+
+  var dampening = gui.add(controls, 'Dampening constant', 0.9, 1).step(0.01);
+  dampening.onChange(function (value: number) {
+    for (var i = 0; i < numParticles; i++) {
+      let p: Particle = particles[i];
+      p.updateDampening(value);
+    }
+  });
+
   var selectedMesh = gui.add(controls, 'Mesh', ['none', 'cat', 'teapot', 'shark']);
   selectedMesh.onChange(function (value: string) {
     currentMesh = meshes[value];
@@ -296,13 +324,13 @@ function main() {
     }*/
 
     if (event.which == 1) {
-      for (let i = 0; i < numParticles + numTargets; i++) {
+      for (let i = 0; i < numParticles; i++) {
         let p: Particle = particles[i];
         p.attract = true;
         p.repel = false;
       }
     } else if (event.which == 3) {
-      for (let i = 0; i < numParticles + numTargets; i++) {
+      for (let i = 0; i < numParticles; i++) {
         let p: Particle = particles[i];
         p.repel = true;
         p.attract = false;
@@ -313,7 +341,7 @@ function main() {
 
   function handleMouseUp(event: any) {
     mouseDown = false;
-    for (let i = 0; i < numParticles + numTargets; i++) {
+    for (let i = 0; i < numParticles; i++) {
       let p: Particle = particles[i];
       p.attract = false;
       p.repel = false;
@@ -378,7 +406,7 @@ function main() {
       // update target position
       target.updatePosition(vec3.fromValues(finalP[0], finalP[1], finalP[2]));
 
-      for (let i = 0; i < numParticles + numTargets; i++) {
+      for (let i = 0; i < numParticles; i++) {
         let p: Particle = particles[i];
         p.updateTarget(target.position);
       }
