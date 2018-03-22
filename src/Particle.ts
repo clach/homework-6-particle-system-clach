@@ -12,8 +12,6 @@ class Particle {
     repel: boolean;
     toMesh: boolean;
     constantColor: boolean;
-    k: number;
-    dampening: number;
 
     constructor(m: number, pos: vec3, vel: vec3, targetPos: vec3, col: vec3, constColor: boolean) {
         this.mass = m;
@@ -23,14 +21,11 @@ class Particle {
         this.oldPosition = vec3.create();
         this.velocity = vel;
         this.acceleration = vec3.fromValues(0.0, 0.0, 0.0);
-        this.k = 0.5;
-        this.dampening = 0.97;
 
         this.attract = false;
         this.repel = false;
 
         this.toMesh = false;
-        
 
         this.target = targetPos; // point of attraction
     }
@@ -41,14 +36,6 @@ class Particle {
 
     updateTarget(newTarget: vec3) {
         this.target = newTarget;
-    }
-
-    updateK(newK: number) {
-        this.k = newK;
-    }
-
-    updateDampening(newDamp: number) {
-        this.dampening = newDamp;
     }
 
     updatePosition(pos: vec3) {
@@ -74,25 +61,25 @@ class Particle {
 
         // update acceleration using force, a = F/m
         if (this.attract == true) {
-            this.acceleration = vec3.scale(this.acceleration, dir, this.k * this.mass);
+            this.acceleration = vec3.scale(this.acceleration, dir, 1.0 / (2.0 * this.mass));
 
             // dampening
             if (vec3.len(dir) > 5 && !this.toMesh) {
-                vec3.scale(this.velocity, this.velocity, this.dampening);
+                vec3.scale(this.velocity, this.velocity, 0.97);
             } else if (vec3.len(dir) > 0.5 && this.toMesh) {
-                vec3.scale(this.velocity, this.velocity, this.dampening);
+                vec3.scale(this.velocity, this.velocity, 0.97);
             }
     
         } else if (this.repel == true) {
-            this.acceleration = vec3.scale(this.acceleration, dir, -this.k * this.mass);
+            this.acceleration = vec3.scale(this.acceleration, dir, -1.0 / (2.0 * this.mass));
         } else {
             this.acceleration = vec3.fromValues(0, 0, 0);
         }
         //console.log("acceleration = " + this.acceleration);
 
         
-        if (vec3.len(this.position) > 50 && !this.constantColor) {
-            vec3.scale(this.acceleration, this.position, -0.001);
+        if (vec3.len(this.position) > 100 && !this.constantColor) {
+            vec3.scale(this.acceleration, this.position, -0.01);
         }
 
         let oldDir: vec3 = vec3.create();

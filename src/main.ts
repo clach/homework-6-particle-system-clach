@@ -71,9 +71,7 @@ const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   'Number Particles': numParticles,
   'Mesh': 'none',
-  'Disperse': disperseParticles,
-  'K value': 0.5,
-  'Dampening constant': 0.97
+  'Disperse': disperseParticles
 };
 
 let square: Square;
@@ -181,7 +179,7 @@ function updateParticleVBOs() {
 function toMesh() {
 
   if (currentMesh == null) {
-    for (var i = 0; i < numParticles; i++) {
+    for (var i = 0; i < particles.length; i++) {
       let p: Particle = particles[i];
       p.attract = false;
       p.toMesh = false;
@@ -222,25 +220,7 @@ function main() {
     // reload scene
     loadScene();
   });
-
   gui.add(controls, 'Disperse');
-
-  var k = gui.add(controls, 'K value', 0, 5).step(0.1);
-  k.onChange(function (value: number) {
-    for (var i = 0; i < numParticles; i++) {
-      let p: Particle = particles[i];
-      p.updateK(value);
-    }
-  });
-
-  var dampening = gui.add(controls, 'Dampening constant', 0.9, 1).step(0.01);
-  dampening.onChange(function (value: number) {
-    for (var i = 0; i < numParticles; i++) {
-      let p: Particle = particles[i];
-      p.updateDampening(value);
-    }
-  });
-
   var selectedMesh = gui.add(controls, 'Mesh', ['none', 'cat', 'teapot', 'shark']);
   selectedMesh.onChange(function (value: string) {
     currentMesh = meshes[value];
