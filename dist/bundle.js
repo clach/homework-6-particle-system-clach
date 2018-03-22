@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -159,12 +159,12 @@ function setGL(_gl) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_vec2__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_vec2__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec3__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec4__ = __webpack_require__(7);
 /* unused harmony reexport glMatrix */
@@ -2616,6 +2616,82 @@ const forEach = (function() {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(1);
+
+class Drawable {
+    constructor() {
+        this.count = 0;
+        this.idxGenerated = false;
+        this.posGenerated = false;
+        this.colGenerated = false;
+        this.translateGenerated = false;
+        this.numInstances = 0; // How many instances of this Drawable the shader program should draw
+    }
+    destory() {
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufIdx);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufPos);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufTranslate);
+    }
+    generateIdx() {
+        this.idxGenerated = true;
+        this.bufIdx = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generatePos() {
+        this.posGenerated = true;
+        this.bufPos = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateCol() {
+        this.colGenerated = true;
+        this.bufCol = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateTranslate() {
+        this.translateGenerated = true;
+        this.bufTranslate = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    bindIdx() {
+        if (this.idxGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
+        }
+        return this.idxGenerated;
+    }
+    bindPos() {
+        if (this.posGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
+        }
+        return this.posGenerated;
+    }
+    bindCol() {
+        if (this.colGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
+        }
+        return this.colGenerated;
+    }
+    bindTranslate() {
+        if (this.translateGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufTranslate);
+        }
+        return this.translateGenerated;
+    }
+    elemCount() {
+        return this.count;
+    }
+    drawMode() {
+        return __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TRIANGLES;
+    }
+    setNumInstances(num) {
+        this.numInstances = num;
+    }
+}
+;
+/* harmony default export */ __webpack_exports__["a"] = (Drawable);
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2624,7 +2700,7 @@ const forEach = (function() {
 module.exports = createFilteredVector
 
 var cubicHermite = __webpack_require__(37)
-var bsearch = __webpack_require__(9)
+var bsearch = __webpack_require__(10)
 
 function clamp(lo, hi, x) {
   return Math.min(hi, Math.max(lo, x))
@@ -2913,7 +2989,7 @@ function createFilteredVector(initState, initVelocity, initTime) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2980,7 +3056,7 @@ module.exports = {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = cross;
@@ -3004,7 +3080,7 @@ function cross(out, a, b) {
 }
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = dot;
@@ -3021,10 +3097,10 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(13);
+var identity = __webpack_require__(14);
 
 module.exports = lookAt;
 
@@ -3116,7 +3192,7 @@ function lookAt(out, eye, center, up) {
 };
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = identity;
@@ -3148,7 +3224,7 @@ function identity(out) {
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = translate;
@@ -3191,7 +3267,7 @@ function translate(out, a, v) {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = create;
@@ -3223,7 +3299,7 @@ function create() {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = scale;
@@ -3259,7 +3335,7 @@ function scale(out, a, v) {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = determinant;
@@ -3294,21 +3370,24 @@ function determinant(a) {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Square__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Camera__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__globals__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__Particle__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__OBJLoader__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__ = __webpack_require__(69);
 
 
 
@@ -3317,36 +3396,164 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+
+
+
+var audio = new Audio('badboy.mp3');
+audio.play();
+let catMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
+let birdMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
+let flowerMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
+let teapotMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
+let sharkMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
+let meshes = {
+    'none': null,
+    'cat': catMesh,
+    'teapot': teapotMesh,
+    'shark': sharkMesh
+};
+function objLoaderCallback(mesh, vertices) {
+    mesh.positions = Float32Array.from(vertices);
+}
+// referenced from https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file
+function readTextFile(file, callback, mesh) {
+    let indices = new Uint32Array(0);
+    let positions = new Float32Array(0);
+    let normals = new Float32Array(0);
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                var allText = rawFile.responseText;
+                Object(__WEBPACK_IMPORTED_MODULE_9__OBJLoader__["a" /* default */])(allText, callback, mesh);
+            }
+        }
+    };
+    rawFile.send(null);
+}
+function loadMeshes() {
+    for (var property in meshes) {
+        if (meshes.hasOwnProperty(property)) {
+            if (property != 'none') {
+                //console.log("property = " + meshes[property]);
+                let filename = "./" + property + ".obj";
+                readTextFile(filename, objLoaderCallback, meshes[property]);
+            }
+        }
+    }
+}
+var numParticles = 100;
+var numTargets = 0;
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
-    tesselations: 5,
     'Load Scene': loadScene,
+    'Number Particles': numParticles,
+    'Mesh': 'none',
+    'Disperse': disperseParticles
 };
 let square;
+let currentMesh = new __WEBPACK_IMPORTED_MODULE_10__geometry_Mesh__["a" /* default */]();
 let time = 0.0;
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
+var mouseButton = 0;
+let particles = [];
+let targets = [];
+let target = new __WEBPACK_IMPORTED_MODULE_8__Particle__["a" /* default */](6, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), true);
 function loadScene() {
     square = new __WEBPACK_IMPORTED_MODULE_3__geometry_Square__["a" /* default */]();
     square.create();
-    // Set up particles here. Hard-coded example data for now
+    numTargets = 0;
+    particles = [];
+    let posMagnitude = 100;
+    let velMagnitude = 3;
+    // fill particles array
+    for (let i = 0; i < numParticles; i++) {
+        let posX = target.position[0] + Math.random() * posMagnitude - (posMagnitude / 2);
+        let posY = target.position[1] + Math.random() * posMagnitude - (posMagnitude / 2);
+        let posZ = target.position[2] + Math.random() * posMagnitude - (posMagnitude / 2);
+        let velX = Math.random() * velMagnitude - (velMagnitude / 2);
+        let velY = Math.random() * velMagnitude - (velMagnitude / 2);
+        let velZ = Math.random() * velMagnitude - (velMagnitude / 2);
+        let mass = Math.random() * 6 + 2;
+        let p = new __WEBPACK_IMPORTED_MODULE_8__Particle__["a" /* default */](mass, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(posX, posY, posZ), //vec3.fromValues(10,10, 10), // 
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(velX, velY, velZ), target.position, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), false);
+        particles.push(p);
+    }
+    particles.push(target);
+    numTargets++;
+    updateParticleVBOs();
+}
+// update the particles actual data (position, velocity, color, etc)
+function updateParticles() {
+    for (let i = 0; i < numParticles + numTargets; i++) {
+        let p = particles[i];
+        p.update();
+    }
+}
+function attractParticles() {
+    for (let i = 0; i < numParticles; i++) {
+        let p = particles[i];
+        p.attract = true;
+    }
+}
+function repelParticles() {
+    for (let i = 0; i < numParticles; i++) {
+        let p = particles[i];
+        p.repel = false;
+    }
+}
+function disperseParticles() {
+    for (let i = 0; i < numParticles; i++) {
+        let p = particles[i];
+        p.disperse();
+    }
+}
+// update the particles offsets and colors VBOs
+function updateParticleVBOs() {
     let offsetsArray = [];
     let colorsArray = [];
-    let n = 100.0;
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            offsetsArray.push(i);
-            offsetsArray.push(j);
-            offsetsArray.push(0);
-            colorsArray.push(i / n);
-            colorsArray.push(j / n);
-            colorsArray.push(1.0);
-            colorsArray.push(1.0); // Alpha channel
-        }
+    for (let i = 0; i < numParticles + numTargets; i++) {
+        let p = particles[i];
+        offsetsArray.push(p.position[0]);
+        offsetsArray.push(p.position[1]);
+        offsetsArray.push(p.position[2]);
+        colorsArray.push(p.color[0]);
+        colorsArray.push(p.color[1]);
+        colorsArray.push(p.color[2]);
+        colorsArray.push(1);
     }
     let offsets = new Float32Array(offsetsArray);
     let colors = new Float32Array(colorsArray);
     square.setInstanceVBOs(offsets, colors);
-    square.setNumInstances(n * n); // 10x10 grid of "particles"
+    square.setNumInstances(numParticles + numTargets);
+}
+function toMesh() {
+    if (currentMesh == null) {
+        for (var i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            p.attract = false;
+            p.toMesh = false;
+        }
+    }
+    else {
+        // collect all the vertices of a mesh
+        let vertices = [];
+        for (var i = 0; i < currentMesh.positions.length; i += 3) {
+            let vertex = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(currentMesh.positions[i], currentMesh.positions[i + 1], currentMesh.positions[i + 2]);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(vertex, vertex, 10);
+            vertices.push(vertex);
+        }
+        for (var i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            p.updateTarget(vertices[i % vertices.length]);
+            p.attract = true;
+            p.toMesh = true;
+        }
+    }
 }
 function main() {
     // Initial display for framerate
@@ -3358,6 +3565,18 @@ function main() {
     document.body.appendChild(stats.domElement);
     // Add controls to the gui
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
+    var particleNumberSlider = gui.add(controls, 'Number Particles', 0, 100000).step(1);
+    particleNumberSlider.onChange(function (value) {
+        numParticles = value;
+        // reload scene
+        loadScene();
+    });
+    gui.add(controls, 'Disperse');
+    var selectedMesh = gui.add(controls, 'Mesh', ['none', 'cat', 'teapot', 'shark']);
+    selectedMesh.onChange(function (value) {
+        currentMesh = meshes[value];
+        toMesh();
+    });
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
@@ -3367,17 +3586,99 @@ function main() {
     // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
     // Later, we can import `gl` from `globals.ts` to access it
     Object(__WEBPACK_IMPORTED_MODULE_6__globals__["b" /* setGL */])(gl);
+    loadMeshes();
     // Initial call to load scene
     loadScene();
-    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(50, 50, 10), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(50, 50, 0));
+    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 60), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
     const renderer = new __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
-    renderer.setClearColor(0.2, 0.2, 0.2, 1);
+    renderer.setClearColor(0.1, 0.1, 0.1, 1);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
     const lambert = new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(67)),
-        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(68)),
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(70)),
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(71)),
     ]);
+    function handleMouseDown(event) {
+        mouseDown = true;
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+        mouseButton = event.which;
+        //console.log("x = " + lastMouseX);
+        //console.log("y = " + lastMouseY);
+        /*
+        // let's do some ray casting
+        let pointClicked: vec4 = vec4.fromValues(lastMouseX, lastMouseY, 1, 1);
+    
+        // convert to NDC
+        pointClicked[0] = (2 * pointClicked[0] / window.innerWidth) - 1;
+        pointClicked[1] = 1 - (2 * pointClicked[1] / window.innerHeight);
+    
+        // multiply by far clip plane
+        vec4.scale(pointClicked, pointClicked, camera.far);
+    
+        // multiply by invViewProj
+        let invProj: mat4 = mat4.create();
+        mat4.invert(invProj, camera.projectionMatrix);
+        vec4.transformMat4(pointClicked, pointClicked, invProj);
+        let invView: mat4 = mat4.create();
+        mat4.invert(invView, camera.viewMatrix);
+        vec4.transformMat4(pointClicked, pointClicked, invView);
+    
+        let cameraEye: vec4 = vec4.fromValues(camera.controls.eye[0], camera.controls.eye[1], camera.controls.eye[2], 1);
+        vec4.subtract(pointClicked, pointClicked, cameraEye);
+        vec4.normalize(pointClicked, pointClicked);
+    
+        // point = eye + dir * t
+        var finalP: vec4 = vec4.create();
+        vec4.add(finalP, cameraEye, vec4.scale(pointClicked, pointClicked, 63));
+    
+        if (event.which == 1) { // left click, attract particles
+          // update target position
+          target.updatePosition(vec3.fromValues(finalP[0], finalP[1], finalP[2]));
+    
+          for (let i = 0; i < numParticles + numTargets; i++) {
+            let p: Particle = particles[i];
+            p.updateTarget(target.position);
+          }
+    
+        } else if (event.which == 3) { // right click, repel particles
+    
+        }*/
+        if (event.which == 1) {
+            for (let i = 0; i < numParticles; i++) {
+                let p = particles[i];
+                p.attract = true;
+                p.repel = false;
+            }
+        }
+        else if (event.which == 3) {
+            for (let i = 0; i < numParticles; i++) {
+                let p = particles[i];
+                p.repel = true;
+                p.attract = false;
+            }
+        }
+    }
+    function handleMouseUp(event) {
+        mouseDown = false;
+        for (let i = 0; i < numParticles; i++) {
+            let p = particles[i];
+            p.attract = false;
+            p.repel = false;
+        }
+    }
+    function handleMouseMove(event) {
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+    }
+    canvas.onmousedown = handleMouseDown;
+    canvas.onmouseup = handleMouseUp;
+    canvas.onmousemove = handleMouseMove;
+    /*
+    camera.controls.rotationSpeed = 0;
+    camera.controls.translationSpeed = 0;
+    camera.controls.zoomSpeed = 0;
+    */
     // This function will be called every frame
     function tick() {
         camera.update();
@@ -3389,6 +3690,38 @@ function main() {
             square,
         ]);
         stats.end();
+        if (mouseDown) {
+            // let's do some ray casting
+            let pointClicked = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(lastMouseX, lastMouseY, 1, 1);
+            // convert to NDC
+            pointClicked[0] = (2 * pointClicked[0] / window.innerWidth) - 1;
+            pointClicked[1] = 1 - (2 * pointClicked[1] / window.innerHeight);
+            // multiply by far clip plane
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].scale(pointClicked, pointClicked, camera.far);
+            // multiply by invViewProj
+            let invProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].create();
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].invert(invProj, camera.projectionMatrix);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].transformMat4(pointClicked, pointClicked, invProj);
+            let invView = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].create();
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].invert(invView, camera.viewMatrix);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].transformMat4(pointClicked, pointClicked, invView);
+            let cameraEye = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(camera.controls.eye[0], camera.controls.eye[1], camera.controls.eye[2], 1);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].subtract(pointClicked, pointClicked, cameraEye);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].normalize(pointClicked, pointClicked);
+            // point = eye + dir * t
+            var finalP = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].create();
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].add(finalP, cameraEye, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].scale(pointClicked, pointClicked, 63));
+            // update target position
+            target.updatePosition(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(finalP[0], finalP[1], finalP[2]));
+            for (let i = 0; i < numParticles; i++) {
+                let p = particles[i];
+                p.updateTarget(target.position);
+            }
+        }
+        // update particle positions/colors!
+        updateParticles();
+        // update the offset VBO each tick!
+        updateParticleVBOs();
         // Tell the browser to call `tick` again whenever it renders a new frame
         requestAnimationFrame(tick);
     }
@@ -3407,7 +3740,7 @@ main();
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3876,7 +4209,7 @@ const sub = subtract;
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4377,7 +4710,7 @@ const sub = subtract;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6115,7 +6448,7 @@ const sub = subtract;
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6805,7 +7138,7 @@ const setAxes = (function() {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7447,7 +7780,7 @@ const forEach = (function() {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 // stats.js - http://github.com/mrdoob/stats.js
@@ -7459,14 +7792,14 @@ a+"px",m=b,r=0);return b},update:function(){l=this.end()}}};"object"===typeof mo
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(26)
-module.exports.color = __webpack_require__(27)
+module.exports = __webpack_require__(27)
+module.exports.color = __webpack_require__(28)
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 /**
@@ -11131,7 +11464,7 @@ dat.dom.dom,
 dat.utils.common);
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /**
@@ -11891,11 +12224,11 @@ dat.color.toString,
 dat.utils.common);
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__rendering_gl_Drawable__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__rendering_gl_Drawable__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(1);
 
 
@@ -11932,82 +12265,6 @@ class Square extends __WEBPACK_IMPORTED_MODULE_0__rendering_gl_Drawable__["a" /*
 }
 ;
 /* harmony default export */ __webpack_exports__["a"] = (Square);
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(1);
-
-class Drawable {
-    constructor() {
-        this.count = 0;
-        this.idxGenerated = false;
-        this.posGenerated = false;
-        this.colGenerated = false;
-        this.translateGenerated = false;
-        this.numInstances = 0; // How many instances of this Drawable the shader program should draw
-    }
-    destory() {
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufIdx);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufPos);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufTranslate);
-    }
-    generateIdx() {
-        this.idxGenerated = true;
-        this.bufIdx = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generatePos() {
-        this.posGenerated = true;
-        this.bufPos = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateCol() {
-        this.colGenerated = true;
-        this.bufCol = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateTranslate() {
-        this.translateGenerated = true;
-        this.bufTranslate = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    bindIdx() {
-        if (this.idxGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
-        }
-        return this.idxGenerated;
-    }
-    bindPos() {
-        if (this.posGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
-        }
-        return this.posGenerated;
-    }
-    bindCol() {
-        if (this.colGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
-        }
-        return this.colGenerated;
-    }
-    bindTranslate() {
-        if (this.translateGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufTranslate);
-        }
-        return this.translateGenerated;
-    }
-    elemCount() {
-        return this.count;
-    }
-    drawMode() {
-        return __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TRIANGLES;
-    }
-    setNumInstances(num) {
-        this.numInstances = num;
-    }
-}
-;
-/* harmony default export */ __webpack_exports__["a"] = (Drawable);
 
 
 /***/ }),
@@ -12080,7 +12337,7 @@ class Camera {
         this.forward = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].create();
         const canvas = document.getElementById('canvas');
         this.controls = __WEBPACK_IMPORTED_MODULE_0_3d_view_controls__(canvas, {
-            position: position,
+            eye: position,
             center: target,
         });
         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].add(this.target, this.position, this.direction);
@@ -12540,12 +12797,12 @@ function createViewController(options) {
 
 module.exports = createTurntableController
 
-var filterVector = __webpack_require__(8)
+var filterVector = __webpack_require__(9)
 var invert44     = __webpack_require__(3)
 var rotateM      = __webpack_require__(38)
-var cross        = __webpack_require__(10)
+var cross        = __webpack_require__(11)
 var normalize3   = __webpack_require__(4)
-var dot3         = __webpack_require__(11)
+var dot3         = __webpack_require__(12)
 
 function len3(x, y, z) {
   return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))
@@ -13232,8 +13489,8 @@ function rotate(out, a, rad, axis) {
 
 module.exports = createOrbitController
 
-var filterVector  = __webpack_require__(8)
-var lookAt        = __webpack_require__(12)
+var filterVector  = __webpack_require__(9)
+var lookAt        = __webpack_require__(13)
 var mat4FromQuat  = __webpack_require__(40)
 var invert44      = __webpack_require__(3)
 var quatFromFrame = __webpack_require__(41)
@@ -13728,15 +13985,15 @@ function quatFromFrame(
 "use strict";
 
 
-var bsearch   = __webpack_require__(9)
+var bsearch   = __webpack_require__(10)
 var m4interp  = __webpack_require__(43)
 var invert44  = __webpack_require__(3)
 var rotateX   = __webpack_require__(55)
 var rotateY   = __webpack_require__(56)
 var rotateZ   = __webpack_require__(57)
-var lookAt    = __webpack_require__(12)
-var translate = __webpack_require__(14)
-var scale     = __webpack_require__(16)
+var lookAt    = __webpack_require__(13)
+var translate = __webpack_require__(15)
+var scale     = __webpack_require__(17)
 var normalize = __webpack_require__(4)
 
 var DEFAULT_CENTER = [0,0,0]
@@ -13934,7 +14191,7 @@ var lerp = __webpack_require__(44)
 
 var recompose = __webpack_require__(45)
 var decompose = __webpack_require__(48)
-var determinant = __webpack_require__(17)
+var determinant = __webpack_require__(18)
 var slerp = __webpack_require__(53)
 
 var state0 = state()
@@ -14024,11 +14281,11 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 */
 
 var mat4 = {
-    identity: __webpack_require__(13),
-    translate: __webpack_require__(14),
+    identity: __webpack_require__(14),
+    translate: __webpack_require__(15),
     multiply: __webpack_require__(46),
-    create: __webpack_require__(15),
-    scale: __webpack_require__(16),
+    create: __webpack_require__(16),
+    scale: __webpack_require__(17),
     fromRotationTranslation: __webpack_require__(47)
 }
 
@@ -14201,16 +14458,16 @@ http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 
 var normalize = __webpack_require__(49)
 
-var create = __webpack_require__(15)
+var create = __webpack_require__(16)
 var clone = __webpack_require__(50)
-var determinant = __webpack_require__(17)
+var determinant = __webpack_require__(18)
 var invert = __webpack_require__(3)
 var transpose = __webpack_require__(51)
 var vec3 = {
     length: __webpack_require__(52),
     normalize: __webpack_require__(4),
-    dot: __webpack_require__(11),
-    cross: __webpack_require__(10)
+    dot: __webpack_require__(12),
+    cross: __webpack_require__(11)
 }
 
 var tmp = create()
@@ -15255,12 +15512,12 @@ class ShaderProgram {
         }
         if (this.attrCol != -1 && d.bindCol()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol);
-            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0); // May need to adjust stride
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol, 1); // Advance 1 index in col VBO for each drawn instance
         }
         if (this.attrTranslate != -1 && d.bindTranslate()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrTranslate);
-            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrTranslate, 3, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0); // May need to adjust stride
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrTranslate, 3, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrTranslate, 1); // Advance 1 index in translate VBO for each drawn instance
         }
         d.bindIdx();
@@ -15279,15 +15536,218 @@ class ShaderProgram {
 
 /***/ }),
 /* 67 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = "#version 300 es\r\n\r\nuniform mat4 u_ViewProj;\r\nuniform float u_Time;\r\n\r\nuniform mat3 u_CameraAxes; // Used for rendering particles as billboards (quads that are always looking at the camera)\r\n// gl_Position = center + vs_Pos.x * camRight + vs_Pos.y * camUp;\r\n\r\nin vec4 vs_Pos; // Non-instanced; each particle is the same quad drawn in a different place\r\nin vec4 vs_Col; // An instanced rendering attribute; each particle instance has a different color\r\nin vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene\r\n\r\nout vec4 fs_Col;\r\nout vec4 fs_Pos;\r\n\r\nvoid main()\r\n{\r\n    fs_Col = vs_Col;\r\n    fs_Pos = vs_Pos;\r\n\r\n    vec3 offset = vs_Translate;\r\n    offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;\r\n\r\n    vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];\r\n\r\n    gl_Position = u_ViewProj * vec4(billboardPos, 1.0);\r\n}\r\n"
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(2);
+
+class Particle {
+    constructor(m, pos, vel, targetPos, col, constColor) {
+        this.mass = m;
+        this.color = col;
+        this.constantColor = constColor;
+        this.position = pos;
+        this.oldPosition = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        this.velocity = vel;
+        this.acceleration = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0);
+        this.attract = false;
+        this.repel = false;
+        this.toMesh = false;
+        this.target = targetPos; // point of attraction
+    }
+    lerp(a, b, t) {
+        return a * (1 - t) + b * t;
+    }
+    updateTarget(newTarget) {
+        this.target = newTarget;
+    }
+    updatePosition(pos) {
+        this.position = pos;
+    }
+    disperse() {
+        let velMagnitude = 3;
+        let velX = Math.random() * velMagnitude - (velMagnitude / 2);
+        let velY = Math.random() * velMagnitude - (velMagnitude / 2);
+        let velZ = Math.random() * velMagnitude - (velMagnitude / 2);
+        this.velocity = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(velX, velY, velZ);
+    }
+    update() {
+        let dt = 0.1;
+        //console.log("dt = " + dt);
+        // direction from particle to attractor point
+        let dir = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].subtract(dir, this.target, this.position);
+        //console.log("dir = " + dir);
+        // update acceleration using force, a = F/m
+        if (this.attract == true) {
+            this.acceleration = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.acceleration, dir, 1.0 / (2.0 * this.mass));
+            // dampening
+            if (__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].len(dir) > 5 && !this.toMesh) {
+                __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.velocity, this.velocity, 0.97);
+            }
+            else if (__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].len(dir) > 0.5 && this.toMesh) {
+                __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.velocity, this.velocity, 0.97);
+            }
+        }
+        else if (this.repel == true) {
+            this.acceleration = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.acceleration, dir, -1.0 / (2.0 * this.mass));
+        }
+        else {
+            this.acceleration = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
+        }
+        //console.log("acceleration = " + this.acceleration);
+        if (__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].len(this.position) > 100 && !this.constantColor) {
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.acceleration, this.position, -0.01);
+        }
+        let oldDir = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].subtract(oldDir, this.target, this.oldPosition);
+        // euler integration
+        // v' = v + a * dt
+        let scaleA = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
+        scaleA = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(scaleA, this.acceleration, dt);
+        this.velocity = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(this.velocity, this.velocity, scaleA);
+        //console.log("velocity = " + this.velocity);
+        // p' = p + v * dt
+        let scaleV = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
+        scaleV = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(scaleV, this.velocity, dt);
+        this.position = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(this.position, this.position, scaleV);
+        //console.log("position = " + this.position);
+        // COLOR
+        if (!this.constantColor) {
+            let dist;
+            if (this.repel || this.attract) {
+                dist = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].len(dir);
+            }
+            else {
+                dist = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].len(this.position);
+            }
+            let col1 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(1, 0.76, 0);
+            let col2 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.91, 0.41, 0.05);
+            let col3 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(1, 0, 0);
+            let col4 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.69, 0.05, 0.91);
+            let col5 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.051, 0.09, 1);
+            let p1 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+            let p2 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+            let p3 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+            let p4 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(p1, col1, col2, dist / 100);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(p2, col2, col3, dist / 100);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(p3, col3, col4, dist / 100);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(p1, p1, p2, dist / 100);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(p2, p2, p3, dist / 100);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].lerp(this.color, p1, p2, dist / 100);
+        }
+    }
+}
+;
+/* harmony default export */ __webpack_exports__["a"] = (Particle);
+
 
 /***/ }),
 /* 68 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = OBJLoader;
+function OBJLoader(objectData, callback, mesh) {
+    /*
+        With the given elementID or string of the OBJ, this parses the
+        OBJ and creates the mesh.
+    */
+    var verts = [];
+    // unpacking stuff
+    var packed = {};
+    var packedVerts = [];
+    var packedHashIndices = {};
+    var packedIndices = [];
+    var index = 0;
+    // array of lines separated by the newline
+    var lines = objectData.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        // if this is a vertex
+        if (lines[i].startsWith('v ')) {
+            var line = lines[i].split(/\s+/);
+            verts.push(line[1]);
+            verts.push(line[2]);
+            verts.push(line[3]);
+        }
+        else if (lines[i].startsWith('f ')) {
+            line = lines[i].split(/\s+/);
+            var emptyStringIndex = line.indexOf('');
+            if (emptyStringIndex > -1) {
+                line.splice(emptyStringIndex, 1);
+            }
+            var fIndex = line.indexOf('f');
+            if (fIndex > -1) {
+                line.splice(fIndex, 1);
+            }
+            // JUST ASSUME IT'S A TRIANGLE MESH
+            var quad = false;
+            for (var j = 0; j < line.length; j++) {
+                if (line[j] in packedHashIndices) {
+                    packedIndices.push(packedHashIndices[line[j]]);
+                }
+                else {
+                    var face = line[j].split('/');
+                    // vertex position
+                    packedVerts.push(verts[(parseInt(face[0]) - 1) * 3 + 0]);
+                    packedVerts.push(verts[(parseInt(face[0]) - 1) * 3 + 1]);
+                    packedVerts.push(verts[(parseInt(face[0]) - 1) * 3 + 2]);
+                    packedVerts.push(1);
+                    // add the newly created vertex to the list of indices
+                    packedHashIndices[line[j]] = index;
+                    packedIndices.push(index);
+                    // increment the counter
+                    index += 1;
+                }
+            }
+        }
+    }
+    var finalPositions = packedVerts;
+    var finalIndices = packedIndices;
+    callback(mesh, verts);
+}
+
+
+/***/ }),
+/* 69 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__rendering_gl_Drawable__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(1);
+
+
+class Mesh extends __WEBPACK_IMPORTED_MODULE_0__rendering_gl_Drawable__["a" /* default */] {
+    constructor() {
+        super(); // Call the constructor of the super class. This is required.
+        this.positions = new Float32Array(0);
+    }
+    create() {
+        this.generateIdx();
+        this.generatePos();
+        this.count = this.indices.length;
+        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
+        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.indices, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
+        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ARRAY_BUFFER, this.positions, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].STATIC_DRAW);
+    }
+}
+;
+/* harmony default export */ __webpack_exports__["a"] = (Mesh);
+
+
+/***/ }),
+/* 70 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec4 fs_Col;\r\nin vec4 fs_Pos;\r\n\r\nout vec4 out_Col;\r\n\r\nvoid main()\r\n{\r\n    float dist = 1.0 - (length(fs_Pos.xyz) * 2.0);\r\n    out_Col = vec4(dist) * fs_Col;\r\n}\r\n"
+module.exports = "#version 300 es\n\nuniform mat4 u_ViewProj;\nuniform float u_Time;\n\nuniform mat3 u_CameraAxes; // Used for rendering particles as billboards (quads that are always looking at the camera)\n// gl_Position = center + vs_Pos.x * camRight + vs_Pos.y * camUp;\n\nin vec4 vs_Pos; // Non-instanced; each particle is the same quad drawn in a different place\nin vec4 vs_Col; // An instanced rendering attribute; each particle instance has a different color\nin vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene\n\nout vec4 fs_Col;\nout vec4 fs_Pos;\n\nvoid main()\n{\n    fs_Col = vs_Col;\n    fs_Pos = vs_Pos;\n\n    vec3 offset = vs_Translate;\n    //offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;\n\n    vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];\n\n    gl_Position = u_ViewProj * vec4(billboardPos, 1.0);\n}\n"
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\nprecision highp float;\n\nin vec4 fs_Col;\nin vec4 fs_Pos;\n\nout vec4 out_Col;\n\nvoid main()\n{\n    float dist = 1.0 - (length(fs_Pos.xyz) * 2.0);\n    //out_Col = vec4(dist) * fs_Col;\n    out_Col = fs_Col;\n}\n"
 
 /***/ })
 /******/ ]);
