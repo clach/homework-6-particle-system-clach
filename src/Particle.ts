@@ -6,14 +6,17 @@ class Particle {
     oldPosition: vec3;
     velocity: vec3;
     acceleration: vec3;
-    color: vec4;
+    color: vec3;
     target: vec3;
     attract: boolean;
     repel: boolean;
+    toMesh: boolean;
+    constantColor: boolean;
 
-    constructor(m: number, pos: vec3, vel: vec3, targetPos: vec3, col: vec4) {
+    constructor(m: number, pos: vec3, vel: vec3, targetPos: vec3, col: vec3, constColor: boolean) {
         this.mass = m;
         this.color = col;
+        this.constantColor = constColor;
         this.position = pos;
         this.oldPosition = vec3.create();
         this.velocity = vel;
@@ -21,6 +24,8 @@ class Particle {
 
         this.attract = false;
         this.repel = false;
+
+        this.toMesh = false;
 
         this.target = targetPos; // point of attraction
     }
@@ -42,7 +47,7 @@ class Particle {
         //console.log("dt = " + dt);
 
         // direction from particle to attractor point
-        let dir: vec3 = vec3.create();
+        let dir: vec3 = vec3.fromValues(0, 0, 0);
         vec3.subtract(dir, this.target, this.position);
         //console.log("dir = " + dir);
 
@@ -51,7 +56,9 @@ class Particle {
             this.acceleration = vec3.scale(this.acceleration, dir, 1.0 / (2.0 * this.mass));
 
             // dampening
-            if (vec3.len(dir) > 5) {
+            if (vec3.len(dir) > 5 && !this.toMesh) {
+                vec3.scale(this.velocity, this.velocity, 0.97);
+            } else if (vec3.len(dir) > 0.5 && this.toMesh) {
                 vec3.scale(this.velocity, this.velocity, 0.97);
             }
     
@@ -64,7 +71,7 @@ class Particle {
 
         
         if (vec3.len(this.position) > 100) {
-            vec3.scale(this.acceleration, this.position, -0.01);
+            vec3.scale(this.acceleration, this.position, -0.001);
         }
 
         let oldDir: vec3 = vec3.create();
@@ -87,16 +94,31 @@ class Particle {
 
         
         // COLOR
-        let startCol: vec3 = vec3.fromValues(0.8, 0.4, 0.6);
-        let edgeCol: vec3 = vec3.fromValues(0.2, 0.5, 0.8);
-        let dist: number = vec3.len(dir);
+        if (!this.constantColor) {
 
-        //vec3.lerp(startCol, startCol, edgeCol, dist / 20);
-        vec3.lerp(startCol, startCol, edgeCol, (this.mass - 2) / 6);
-        // update color based on distance to target
-        this.color[0] = startCol[0];
-        this.color[1] = startCol[1];
-        this.color[2] = startCol[2];
+            let dist: number;
+            if (this.repel || this.attract) {
+                dist = vec3.len(dir);
+            } else {
+                dist = vec3.len(this.position);
+            }
+            let col1: vec3 = vec3.fromValues(1, 0.76, 0);
+            let col2: vec3 = vec3.fromValues(0.91, 0.41, 0.05);
+            let col3: vec3 = vec3.fromValues(1, 0, 0);
+            let col4: vec3 = vec3.fromValues(0.69, 0.05, 0.91);
+            let col5: vec3 = vec3.fromValues(0.051, 0.09, 1);
+
+            let p1: vec3 = vec3.create();
+            let p2: vec3 = vec3.create();
+            let p3: vec3 = vec3.create();
+            let p4: vec3 = vec3.create();
+            vec3.lerp(p1, col1, col2, dist / 100);
+            vec3.lerp(p2, col2, col3, dist / 100);
+            vec3.lerp(p3, col3, col4, dist / 100);
+            vec3.lerp(p1, p1, p2, dist / 100);
+            vec3.lerp(p2, p2, p3, dist / 100);
+            vec3.lerp(this.color, p1, p2, dist / 100);
+        }
 
     }
 

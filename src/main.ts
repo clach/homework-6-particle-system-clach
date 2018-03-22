@@ -11,6 +11,58 @@ import OBJLoader from './OBJLoader';
 import Mesh from './geometry/Mesh';
 
 
+/*
+var audio = new Audio('badboy.mp3');
+audio.play();*/
+
+let catMesh: Mesh = new Mesh();
+let birdMesh: Mesh = new Mesh();
+let flowerMesh: Mesh = new Mesh();
+let teapotMesh: Mesh = new Mesh();
+let sharkMesh: Mesh = new Mesh();
+
+let meshes: any = {
+  'none': null,
+  'cat': catMesh,
+  'teapot': teapotMesh,
+  'shark': sharkMesh
+}
+
+function objLoaderCallback(mesh: Mesh, vertices: Array<number>): void {
+  mesh.positions = Float32Array.from(vertices);
+}
+
+// referenced from https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file
+function readTextFile(file: string, callback: any, mesh: Mesh): void {
+  let indices: Uint32Array = new Uint32Array(0);
+  let positions: Float32Array = new Float32Array(0);
+  let normals: Float32Array = new Float32Array(0);
+
+  var rawFile = new XMLHttpRequest();
+  rawFile.open("GET", file, false);
+  rawFile.onreadystatechange = function () {
+    if (rawFile.readyState === 4) {
+      if (rawFile.status === 200 || rawFile.status == 0) {
+        var allText = rawFile.responseText;
+        OBJLoader(allText, callback, mesh);
+      }
+    }
+  }
+  rawFile.send(null);
+}
+
+function loadMeshes() {
+  for (var property in meshes) {
+    if (meshes.hasOwnProperty(property)) {
+      if (property != 'none') {
+        //console.log("property = " + meshes[property]);
+        let filename: string = "./" + property + ".obj";
+        readTextFile(filename, objLoaderCallback, meshes[property]);
+      }
+    }
+  }
+}
+
 var numParticles: number = 100;
 var numTargets: number = 0;
 
@@ -19,7 +71,7 @@ var numTargets: number = 0;
 const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   'Number Particles': numParticles,
-  'Message': 'None'
+  'Mesh': 'none'
 };
 
 let square: Square;
@@ -35,7 +87,7 @@ let particles: Particle[] = [];
 let targets: Particle[] = [];
 
 let target: Particle = new Particle(6, vec3.fromValues(0, 0, 0), vec3.fromValues(0, 0, 0),
-  vec3.fromValues(0, 0, 0), vec4.fromValues(0, 0, 0, 1));
+  vec3.fromValues(0, 0, 0), vec3.fromValues(0, 1, 0), true);
 
 function loadScene() {
   square = new Square();
@@ -60,7 +112,7 @@ function loadScene() {
     let p: Particle = new Particle(mass, vec3.fromValues(posX, posY, posZ),//vec3.fromValues(10,10, 10), // 
       vec3.fromValues(velX, velY, velZ),
       target.position,
-      vec4.fromValues(0, 0, 0, 1.0));
+      vec3.fromValues(0, 0, 0), false);
     particles.push(p);
 
   }
@@ -107,13 +159,40 @@ function updateParticleVBOs() {
     colorsArray.push(p.color[0]);
     colorsArray.push(p.color[1]);
     colorsArray.push(p.color[2]);
-    colorsArray.push(p.color[3]);
+    colorsArray.push(1);
   }
 
   let offsets: Float32Array = new Float32Array(offsetsArray);
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
   square.setNumInstances(numParticles + numTargets);
+
+}
+
+function toMesh() {
+
+  if (currentMesh == null) {
+    for (var i = 0; i < particles.length; i++) {
+      let p: Particle = particles[i];
+      p.attract = false;
+      p.toMesh = false;
+    }
+  } else {
+    // collect all the vertices of a mesh
+    let vertices: vec3[] = [];
+    for (var i = 0; i < currentMesh.positions.length; i += 3) {
+      let vertex: vec3 = vec3.fromValues(currentMesh.positions[i], currentMesh.positions[i + 1], currentMesh.positions[i + 2]);
+      vec3.scale(vertex, vertex, 10);
+      vertices.push(vertex);
+    }
+
+    for (var i = 0; i < particles.length; i++) {
+      let p: Particle = particles[i];
+      p.updateTarget(vertices[i % vertices.length]);
+      p.attract = true;
+      p.toMesh = true;
+    }
+  }
 
 }
 
@@ -128,20 +207,16 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
-  var particleNumberSlider = gui.add(controls, 'Number Particles', 0, 1000).step(1);
+  var particleNumberSlider = gui.add(controls, 'Number Particles', 0, 100000).step(1);
   particleNumberSlider.onChange(function (value: number) {
     numParticles = value;
     // reload scene
     loadScene();
   });
-  var selectedMesh = gui.add(controls, 'Message', [ 'None', 'bulbasaur', 'hmmmm' ] );
+  var selectedMesh = gui.add(controls, 'Mesh', ['none', 'cat', 'teapot', 'shark']);
   selectedMesh.onChange(function (value: string) {
-    if (value == 'None') {
-
-    } else {
-      let filename: string = "./" + value + ".obj";
-      readTextFile(filename, objLoaderCallback);
-    }
+    currentMesh = meshes[value];
+    toMesh();
   });
 
   // get canvas and webgl context
@@ -154,13 +229,15 @@ function main() {
   // Later, we can import `gl` from `globals.ts` to access it
   setGL(gl);
 
+  loadMeshes();
+
   // Initial call to load scene
   loadScene();
 
   const camera = new Camera(vec3.fromValues(0, 0, 60), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
-  renderer.setClearColor(0.4, 0.32, 0.38, 1);
+  renderer.setClearColor(0.1, 0.1, 0.1, 1);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
@@ -253,37 +330,11 @@ function main() {
   canvas.onmouseup = handleMouseUp;
   canvas.onmousemove = handleMouseMove;
 
+  /*
   camera.controls.rotationSpeed = 0;
   camera.controls.translationSpeed = 0;
   camera.controls.zoomSpeed = 0;
-
-
-
-  function objLoaderCallback(mesh: Mesh, indices: Array<number>, positions: Array<number>, normals: Array<number>): void {
-    mesh.indices = Uint32Array.from(indices);
-    mesh.positions = Float32Array.from(positions);
-    mesh.normals = Float32Array.from(normals);
-    mesh.create();
-  }
-
-  // referenced from https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file
-  function readTextFile(file: string, callback: any): void {
-    let indices: Uint32Array = new Uint32Array(0);
-    let positions: Float32Array = new Float32Array(0);
-    let normals: Float32Array = new Float32Array(0);
-
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function () {
-      if (rawFile.readyState === 4) {
-        if (rawFile.status === 200 || rawFile.status == 0) {
-          var allText = rawFile.responseText;
-          OBJLoader(allText, callback, currentMesh);
-        }
-      }
-    }
-    rawFile.send(null);
-  }
+  */
 
   // This function will be called every frame
   function tick() {
